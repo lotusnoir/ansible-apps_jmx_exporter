@@ -1,0 +1,18 @@
+{{ ansible_managed | comment }} 
+
+[Unit]
+Description=Prometheus jmx Exporter
+After=network-online.target
+StartLimitInterval=0
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/jmx_exporter {{ jmx_exporter_address }}:{{ jmx_exporter_port }} /etc/jmx_exporter/jmx_exporter.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+SyslogIdentifier=jmx_exporter
+RestartSec=1
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+---
+jmx_exporter_user: jmx_exporter
+jmx_exporter_group: jmx_exporter
+
+jmx_exporter_version: 0.14.0
+jmx_exporter_install_method: deb   # deb / src / jar
+jmx_exporter_install_dir: /etc/jmx_exporter
+
+jmx_exporter_config_files:
+  - kafka-0-8-2.yml
+
+jmx_exporter_address: 0.0.0.0
+jmx_exporter_port: 9117
+
+jmx_exporter_tgz: "parent-{{ jmx_exporter_version }}.tar.gz"
+jmx_exporter_tgz_url: "https://github.com/prometheus/jmx_exporter/archive/{{ jmx_exporter_tgz }}"
+jmx_exporter_jar: "jmx_prometheus_javaagent-{{ jmx_exporter_version }}.jar"
+jmx_exporter_jar_url: "https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/{{ jmx_exporter_version}}/{{ jmx_exporter_jar }}"
+jmx_exporter_deb: "jmx_prometheus_httpserver-{{ jmx_exporter_version }}.deb"
+jmx_exporter_deb_url: "https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_httpserver/{{ jmx_exporter_version }}/{{ jmx_exporter_deb }}"

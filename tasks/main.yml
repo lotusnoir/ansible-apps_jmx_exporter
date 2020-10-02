@@ -1,0 +1,57 @@
+---
+- name: "Check for jmx_exporter binary"
+  stat:
+    path: "/usr/local/bin/jmx_exporter"
+  changed_when: false
+  register: jmx_exporter_install
+
+- when: not jmx_exporter_install.stat.exists
+  block:
+    - name: "Ensure jmx_exporter group"
+      group:
+        name: "{{ jmx_exporter_group }}"
+        system: true
+        state: present
+
+    - name: "Ensure jmx_exporter user"
+      user:
+        name: "{{ jmx_exporter_user }}"
+        group: "{{ jmx_exporter_group }}"
+        system: true
+        shell: /usr/sbin/nologin
+        createhome: false
+
+    - name: "Install a jmx_exporter from .deb package"
+      apt:
+        deb: "{{ jmx_exporter_deb_url }}"
+
+    - name: "Copy config files"
+      copy:
+        src: '{{ item }}'
+        dest: '{{ jmx_exporter_install_dir }}'
+        mode: '0644'
+      with_items:
+        - "{{ jmx_exporter_config_files }}"
+
+    - name: "Download jmx_exporter jar file"
+      get_url:
+        url: "{{ jmx_exporter_jar_url }}"
+        dest: "{{ jmx_exporter_install_dir }}/{{ jmx_exporter_jar }}"
+        owner: "{{ jmx_exporter_user }}"
+        group: "{{ jmx_exporter_group }}"
+        timeout: 60
+        mode: 0755
+
+- name: "Create systemd for jmx_exporter"
+  template:
+    src: jmx_exporter.service.j2
+    dest: /lib/systemd/system/jmx_exporter.service
+    mode: 0644
+  notify: "restart jmx_exporter"
+
+- name: "Start jmx_exporter.service"
+  systemd:
+    name: jmx_exporter
+    state: started
+    enabled: true
+    daemon_reload: true

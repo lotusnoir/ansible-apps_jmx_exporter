@@ -1,4 +1,11 @@
 ---
+- name: "End play if distribution not suported"
+  meta: end_host
+  when:
+    - ansible_distribution != "Debian"
+    - ansible_distribution != "Ubuntu"
+    - ansible_distribution != "CentOS"
+
 - name: "Check for jmx_exporter binary"
   stat:
     path: "/usr/local/bin/jmx_exporter"
@@ -24,6 +31,8 @@
     - name: "Install a jmx_exporter from .deb package"
       apt:
         deb: "{{ jmx_exporter_deb_url }}"
+      when:
+        - jmx_exporter_install_method == "deb"
 
     - name: "Copy config files"
       copy:
@@ -39,14 +48,14 @@
         dest: "{{ jmx_exporter_install_dir }}/{{ jmx_exporter_jar }}"
         owner: "{{ jmx_exporter_user }}"
         group: "{{ jmx_exporter_group }}"
-        timeout: 60
-        mode: 0755
+        timeout: '60'
+        mode: '0755'
 
 - name: "Create systemd for jmx_exporter"
   template:
-    src: jmx_exporter.service.j2
-    dest: /lib/systemd/system/jmx_exporter.service
-    mode: 0644
+    src: 'jmx_exporter.service.j2'
+    dest: '/lib/systemd/system/jmx_exporter.service'
+    mode: '0640'
   notify: "restart jmx_exporter"
 
 - name: "Start jmx_exporter.service"
